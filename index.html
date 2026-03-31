@@ -56,6 +56,40 @@
         button:hover {
             background-color: #45a049;
         }
+        .status {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: none;
+        }
+        .status.ok {
+            display: block;
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #a5d6a7;
+        }
+        .status.error {
+            display: block;
+            background: #ffebee;
+            color: #b71c1c;
+            border: 1px solid #ef9a9a;
+        }
+        .records {
+            margin-top: 18px;
+            border-top: 1px solid #e8e8e8;
+            padding-top: 12px;
+        }
+        .records h3 {
+            margin: 0 0 8px;
+            color: #333;
+            font-size: 16px;
+        }
+        .records ul {
+            margin: 0;
+            padding-left: 18px;
+            color: #444;
+        }
     </style>
 </head>
 <body>
@@ -86,11 +120,28 @@
 
         <button type="submit">Save Record</button>
     </form>
+    <p id="status" class="status" aria-live="polite"></p>
+
+    <div class="records">
+        <h3>Recent Records</h3>
+        <ul id="recordList">
+            <li>Loading records...</li>
+        </ul>
+    </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    import {
+        getFirestore,
+        collection,
+        addDoc,
+        serverTimestamp,
+        getDocs,
+        query,
+        orderBy,
+        limit
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCItAlyE_gTJNK6ucxbEkorRc3ZfB8KrPY",
@@ -104,6 +155,37 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const statusEl = document.getElementById('status');
+    const recordList = document.getElementById('recordList');
+
+    function setStatus(message, type) {
+        statusEl.textContent = message;
+        statusEl.className = `status ${type}`;
+    }
+
+    async function loadRecentRecords() {
+        try {
+            const recordsQuery = query(collection(db, "students"), orderBy("createdAt", "desc"), limit(5));
+            const snapshot = await getDocs(recordsQuery);
+
+            if (snapshot.empty) {
+                recordList.innerHTML = '<li>No records yet.</li>';
+                return;
+            }
+
+            recordList.innerHTML = '';
+            snapshot.forEach((docItem) => {
+                const data = docItem.data();
+                const listItem = document.createElement('li');
+                listItem.textContent = `${data.name} - ${data.course} (Year ${data.yearLevel})`;
+                recordList.appendChild(listItem);
+            });
+        } catch (error) {
+            console.error("Error loading records:", error);
+            recordList.innerHTML = '<li>Unable to load records.</li>';
+            setStatus(`Read failed: ${error.code || 'unknown'} - ${error.message}`, 'error');
+        }
+    }
 
     document.getElementById('studentForm').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -120,13 +202,16 @@
                 createdAt: serverTimestamp()
             });
 
-            alert(`Record Saved to Firebase!\nName: ${name}\nCourse: ${course}\nYear: ${year}`);
+            setStatus('Record saved to Firestore successfully.', 'ok');
             this.reset();
+            await loadRecentRecords();
         } catch (error) {
             console.error("Error saving to Firebase:", error);
-            alert("Failed to save record. Check Firebase config and Firestore rules.");
+            setStatus(`Write failed: ${error.code || 'unknown'} - ${error.message}`, 'error');
         }
     });
+
+    loadRecentRecords();
 </script>
 
 </body>
