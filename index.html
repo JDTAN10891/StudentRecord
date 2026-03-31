@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Record Entry</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            padding: 50px;
+        }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], 
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Student Record</h2>
+    <form id="studentForm">
+        <div class="form-group">
+            <label for="studentName">Full Name</label>
+            <input type="text" id="studentName" name="studentName" placeholder="e.g. John Doe" required>
+        </div>
+
+        <div class="form-group">
+            <label for="course">Course</label>
+            <input type="text" id="course" name="course" placeholder="e.g. Computer Science" required>
+        </div>
+
+        <div class="form-group">
+            <label for="yearLevel">Year Level</label>
+            <select id="yearLevel" name="yearLevel" required>
+                <option value="" disabled selected>Select Year</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+            </select>
+        </div>
+
+        <button type="submit">Save Record</button>
+    </form>
+</div>
+
+<script>
+    // Basic logic to handle form submission
+    document.getElementById('studentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('studentName').value;
+        const course = document.getElementById('course').value;
+        const year = document.getElementById('yearLevel').value;
+
+        alert(`Record Saved!\nName: ${name}\nCourse: ${course}\nYear: ${year}`);
+        
+        // You could clear the form here
+        // this.reset();
+    });
+</script>
+
+</body>
+</html>
