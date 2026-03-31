@@ -88,19 +88,44 @@
     </form>
 </div>
 
-<script>
-    // Basic logic to handle form submission
-    document.getElementById('studentForm').addEventListener('submit', function(e) {
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCItAlyE_gTJNK6ucxbEkorRc3ZfB8KrPY",
+    authDomain: "database-64e22.firebaseapp.com",
+    projectId: "database-64e22",
+    storageBucket: "database-64e22.firebasestorage.app",
+    messagingSenderId: "111951908736",
+    appId: "1:111951908736:web:453b0c656dd3e447ccfb65",
+    measurementId: "G-275N9PNHT1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById('studentForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
-        const name = document.getElementById('studentName').value;
-        const course = document.getElementById('course').value;
+
+        const name = document.getElementById('studentName').value.trim();
+        const course = document.getElementById('course').value.trim();
         const year = document.getElementById('yearLevel').value;
 
-        alert(`Record Saved!\nName: ${name}\nCourse: ${course}\nYear: ${year}`);
-        
-        // You could clear the form here
-        // this.reset();
+        try {
+            await addDoc(collection(db, "students"), {
+                name,
+                course,
+                yearLevel: year,
+                createdAt: serverTimestamp()
+            });
+
+            alert(`Record Saved to Firebase!\nName: ${name}\nCourse: ${course}\nYear: ${year}`);
+            this.reset();
+        } catch (error) {
+            console.error("Error saving to Firebase:", error);
+            alert("Failed to save record. Check Firebase config and Firestore rules.");
+        }
     });
 </script>
 
